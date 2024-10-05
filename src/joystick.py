@@ -21,6 +21,8 @@ class Joystick():
 
         # Movement Paramter
         self.direction = direction_mapper[(0,0)]
+        #Button
+        self.button = None
 
         # Checking for Joystick 
         joystick_count = joystick.get_count()
@@ -50,7 +52,14 @@ class Joystick():
         self._thread = Thread(target=self.read_joystick)
         self._thread.start()
 
+    def _get_button(self):
+        for button in range(self.button_count):
+            if self.controller.get_button(button):
+                return button
+        return None
+
     def read_joystick(self):
+
         while not self.stop:
             pygame.event.pump()
 
@@ -58,6 +67,9 @@ class Joystick():
             hat_value = self.controller.get_hat(0)
             # print(hat_value)
             self.direction = direction_mapper[hat_value]
+
+            self.button = self._get_button()
+            time.sleep(0.5)
 
 
 if __name__ == '__main__':
