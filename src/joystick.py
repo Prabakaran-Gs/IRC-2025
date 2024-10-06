@@ -19,10 +19,18 @@ class Joystick():
         pygame.init()
         self.stop = False
 
+        '''
+        Parameter to be Passed
+        '''
         # Movement Paramter
         self.direction = direction_mapper[(0,0)]
-        #Button
+        # Button
         self.button = None
+        # Speed
+        self.speed = 0
+        '''
+        End of parameters
+        '''
 
         # Checking for Joystick 
         joystick_count = joystick.get_count()
@@ -57,6 +65,11 @@ class Joystick():
             if self.controller.get_button(button):
                 return button
         return None
+    
+    def _get_speed(self):
+        axis_value = self.controller.get_axis(3)
+        # (-1,1) range is converted into (0,1)
+        return (axis_value + 1) / 2
 
     def read_joystick(self):
 
@@ -69,6 +82,7 @@ class Joystick():
             self.direction = direction_mapper[hat_value]
 
             self.button = self._get_button()
+            self.speed = self._get_speed()
             time.sleep(0.5)
 
 
