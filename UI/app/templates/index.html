@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Astra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/chart.js@2.8.0/dist/Chart.bundle.js"></script>
+    <script src="https://unpkg.com/chartjs-gauge@0.3.0/dist/chartjs-gauge.js"></script>
+</head>
+<body class="bg-gray-100 text-black">
+    <header class="bg-primary text-black p-4 text-center flex items-center justify-around w-full h-16">
+        <img src="{{ url_for('static', filename='images/adastra_logo.jpeg') }}" class="w-16 h-16 rounded-full">
+        <a href="http://127.0.0.1:5000/"><button class="hover:text-white text-xl">Dashboard</button></a>
+        <a href="http://127.0.0.1:5000/science-subsystem"><button class="hover:text-white text-xl">Science-subsystem</button></a>
+        <a href="http://127.0.0.1:5000/control-subsystem"><button class="hover:text-white text-xl">Control-subsystem</button></a>
+        <a href="http://127.0.0.1:5000/power-subsystem"><button class="hover:text-white text-xl">Power-subsystem</button></a>
+    </header>
+    <div class="w-full h-full px-4 py-10">
+        {% block content %} {% endblock %}
+    </div>
+</body>
+</html>
