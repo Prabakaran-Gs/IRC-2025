@@ -5,12 +5,24 @@ import cv2
 main = Blueprint('main', __name__)
 
 # Initialize the camera
-camera = cv2.VideoCapture(0)
+camera1 = cv2.VideoCapture(0)
+camera2 = cv2.VideoCapture(1)
 
 # Route to generate frames for video feed
-def generate_frames():
+def generate_frames_camera1():
     while True:
-        success, frame = camera.read()
+        success, frame = camera1.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+def generate_frames_camera2():
+    while True:
+        success, frame = camera2.read()
         if not success:
             break
         else:
@@ -85,7 +97,12 @@ def BME680_data():
     BME680 = {"temperature": random.randint(-40, 85), "humidity": random.randint(0, 100), "pressure": random.randint(30000, 110000), "voc": random.randint(0,500)}
     return BME680
 
-@main.route('/video_feed')
-def video_feed():
+@main.route('/video_feed_camera1')
+def video_feed_camera1():
     # Route for video feed
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames_camera1(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@main.route('/video_feed_camera2')
+def video_feed_camera2():
+    # Route for video feed
+    return Response(generate_frames_camera2(), mimetype='multipart/x-mixed-replace; boundary=frame')
