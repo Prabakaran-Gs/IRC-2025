@@ -106,3 +106,11 @@ def video_feed_camera1():
 def video_feed_camera2():
     # Route for video feed
     return Response(generate_frames_camera2(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@main.route('/rover_location')
+def rover_location():
+    location = {
+        'latitude': 37.7749 + random.uniform(-0.01, 0.01),  # Example: San Francisco base point
+        'longitude': -122.4194 + random.uniform(-0.01, 0.01)
+    }
+    return location

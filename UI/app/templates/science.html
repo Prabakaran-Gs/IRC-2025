@@ -78,10 +78,10 @@
         <canvas id="NPK" width="100" height="100"></canvas>
     </div>
 </div>
-<link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css" type="text/css" rel="stylesheet">
-<link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css" type="text/css" rel="stylesheet">
-<script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
-<script src="https://cdn.anychart.com/releases/v8/js/anychart-linear-gauge.min.js"></script>
+<link href="{{ url_for('static', filename='css/anychart-ui.min.css') }}" type="text/css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/anychart-font.min.css') }}" type="text/css" rel="stylesheet">
+<script src="{{ url_for('static', filename='js/anychart-base.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/anychart-linear-gauge.min.js')}}"></script>
 <script src="{{ url_for('static', filename='js/hydrogenConcentration.js')}}"></script>
 <script src="{{ url_for('static', filename='js/combustibleGases.js')}}"></script>
 <script src="{{ url_for('static', filename='js/pH_chart.js')}}"></script>
