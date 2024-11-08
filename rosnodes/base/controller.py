@@ -3,47 +3,44 @@ Usage :
     Recive the data from the joystick and publish the velocity and buttons
 
 topics :
-    /cmd_vel       : publish
-    /action_button : publish
+    /joystick_buttons       : publish
+    /joystick_cmd           : publish
 '''
 
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Int8
+from std_msgs.msg import String , Int8MultiArray
 from src.joystick import Joystick
 
 
 class Controller(Node):
 
     def __init__(self):
-        super().__init__("controller")
+        super().__init__("serial_cmd_publisher")
         self.controller = Joystick()
-        self.velocity_publisher = self.create_publisher(Twist,"/cmd_vel",10)
-        self.button_publisher = self.create_publisher(Int8,"/action_button",10)
-        self.callback = self.create_timer(0.5,self.get_values)
+
+        self.button_publisher = self.create_publisher(Int8MultiArray,"/joystick_buttons",10)
+        self.serial_cmd_publisher =  self.create_publisher(String,"/joystick_cmd",10)
+
+        self.timer = self.create_timer(0.5,self.get_values)
     
     def get_values(self):
-        _direction = self.controller.direction
-        _button = self.controller.button
+        buttons = self.get_button()
+        cmd     = self.get_cmd()
+        self.button_publisher.publish(buttons)
+        self.serial_cmd_publisher.publish(cmd)
 
-        movement =Twist()
-        button = Int8()
 
-        if _direction == 'F':
-            movement.linear.x = self.controller.speed
-        elif _direction == 'B':
-            movement.linear.x = -1* self.controller.speed
-        elif _direction == 'L':
-            movement.angular.z = -1* self.controller.speed
-        elif _direction == 'R':
-            movement.angular.z = self.controller.speed
+    def get_button(self):
+        buttons = Int8MultiArray()
+        buttons.data = self.controller.buttons_data
+        return buttons
 
-        button.data = _button
-        
-        self.button_publisher.publish(button)
-        self.velocity_publisher.publish(movement)
-
+    def get_cmd(self):
+        cmd = String()
+        cmd.data = self.controller.cmd
+        return cmd
 
 def main():
     rclpy.init(args=None)

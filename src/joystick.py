@@ -25,9 +25,12 @@ class Joystick():
         # Movement Paramter
         self.direction = direction_mapper[(0,0)]
         # Button
-        self.button = None
+        self.buttons_data = [0,0,0,0,0,0,0,0,0,0,0,0] #! actual buttons : on/off
         # Speed
         self.speed = 0
+        # Serial_cmd
+        self.cmd = "l0,r0"
+
         '''
         End of parameters
         '''
@@ -60,16 +63,18 @@ class Joystick():
         self._thread = Thread(target=self.read_joystick)
         self._thread.start()
 
-    def _get_button(self):
+    def _update_button(self):
         for button in range(self.button_count):
             if self.controller.get_button(button):
-                return button
+                self.buttons_data[button] = 1
+            else:
+                self.buttons_data[button] = 0
         return None
     
-    def _get_speed(self):
+    def _update_speed(self):
         axis_value = self.controller.get_axis(3)
         # (-1,1) range is converted into (0,1)
-        return (axis_value + 1) / 2
+        self.speed = ((axis_value + 1) / 2)
 
     def read_joystick(self):
 
@@ -81,9 +86,24 @@ class Joystick():
             # print(hat_value)
             self.direction = direction_mapper[hat_value]
 
-            self.button = self._get_button()
-            self.speed = self._get_speed()
+            self._update_button()
+            self._update_speed()
+            self.cmd = self._encoded_direction()
             time.sleep(0.5)
+
+    def _encoded_direction(self):
+        l_speed = self.speed
+        r_speed = self.speed
+        if self.direction == 'B':
+            l_speed *= -1
+            r_speed *= -1
+        elif self.direction == 'L':
+            l_speed *= -1
+        elif self.direction == 'R':
+            r_speed *= -1
+
+        return f"l{l_speed},r{r_speed}"
+
 
 
 if __name__ == '__main__':
