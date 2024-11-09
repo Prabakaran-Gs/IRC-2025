@@ -9,35 +9,33 @@ topics :
 
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from std_msgs.msg import String , Int8MultiArray
+from std_msgs.msg import String ,Float32MultiArray
 from src.joystick import Joystick
 
+NO_OF_BUTTONS_TO_SHARE = 8
 
 class Controller(Node):
 
     def __init__(self):
-        super().__init__("serial_cmd_publisher")
+        super().__init__("serial_cmd_sender")
         self.controller = Joystick()
 
-        self.button_publisher = self.create_publisher(Int8MultiArray,"/joystick_buttons",10)
-        self.serial_cmd_publisher =  self.create_publisher(String,"/joystick_cmd",10)
-
+        self.motion_cmd_publisher =  self.create_publisher(String,"joystick_motion_cmd",10)
+        self.arm_cmd_publisher = self.create_publisher(Float32MultiArray,"joystick_arm_cmd",10)
         self.timer = self.create_timer(0.5,self.get_values)
     
     def get_values(self):
-        buttons = self.get_button()
-        cmd     = self.get_cmd()
-        self.button_publisher.publish(buttons)
-        self.serial_cmd_publisher.publish(cmd)
+        motion     = self.get_motion()
+        arm     = self.get_arm()
+        self.motion_cmd_publisher.publish(motion)
+        self.arm_cmd_publisher.publish(arm)
 
-
-    def get_button(self):
-        buttons = Int8MultiArray()
-        buttons.data = self.controller.buttons_data
+    def get_arm(self):
+        buttons = Float32MultiArray()
+        buttons.data = self.controller.axes_data+self.controller.buttons_data[:NO_OF_BUTTONS_TO_SHARE]
         return buttons
 
-    def get_cmd(self):
+    def get_motion(self):
         cmd = String()
         cmd.data = self.controller.cmd
         return cmd
