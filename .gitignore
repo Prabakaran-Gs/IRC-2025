@@ -2,3 +2,4 @@
 .vscode
 .virtual
 .venv
+UI/app/__pycache__

@@ -1,0 +1,91 @@
+import cv2
+from ultralytics import YOLO
+from frame_dec import arrow  # Ensure 'frame_dec' and 'arrow' function are correctly implemented and imported
+
+# Load the pre-trained YOLOv8 model (you can use a custom model by providing the path)
+model = YOLO('best.pt')  # Replace 'best.pt' with your specific YOLOv8 model if needed
+
+#detection function
+
+def arrow(image):
+    """Detects the direction of an arrow in the given image."""
+
+    
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 50, 150)
+
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for contour in contours:
+        if cv2.contourArea(contour) > 100:
+            # Approximate the contour with a polygon
+            peri = cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
+
+            # Check if the polygon has 7 vertices (typical for an arrow shape)
+            if len(approx) == 7:
+                # Calculate the center of the arrow
+                M = cv2.moments(contour)
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+
+                # Find the extreme points of the arrow
+                leftmost = tuple(contour[contour[:, :, 0].argmin()][0])
+                rightmost = tuple(contour[contour[:, :, 0].argmax()][0])
+                topmost = tuple(contour[contour[:, :, 1].argmin()][0])
+                bottommost = tuple(contour[contour[:, :, 1].argmax()][0])
+
+                # Determine the direction based on the position of the extreme points
+                if abs(leftmost[0] - cX) > abs(rightmost[0] - cX):
+                    return "Right"
+                elif abs(leftmost[0] - cX) < abs(rightmost[0] - cX):
+                    return "Left"
+                elif abs(topmost[1] - cY) > abs(bottommost[1] - cY):
+                    return "Up"
+                else:
+                    return "Down"
+
+    return "No arrow detected"
+
+
+# Open a video capture from the webcam (use 0 for the default camera)
+cap = cv2.VideoCapture('s.mp4')
+
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Perform object detection using the YOLOv8 model
+    results = model(frame, conf=0.7,verbose=False) 
+
+    # Check if any detections are made
+    if results[0].boxes:
+        # Loop through each detection box
+        for box in results[0].boxes:
+            # Get the coordinates (x1, y1, x2, y2) and convert to integers
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+            # Crop the detected region from the frame
+            cropped_frame = frame[y1:y2, x1:x2]
+
+            
+            d = arrow(cropped_frame)
+            # print(f"Detection made: {d}")
+            if d!="No arrow detected":
+                cv2.putText(frame, d, (50, 75), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 4)
+
+    # Extract the annotated image with bounding boxes
+    annotated_frame = results[0].plot()  # Draw the detections with custom labels on the frame
+
+    # Display the frame with annotations
+    cv2.imshow('YOLOv8 Object Detection', annotated_frame)
+
+    # Break loop on 'q' key press
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release the video capture object and close display windows
+cap.release()
+cv2.destroyAllWindows()

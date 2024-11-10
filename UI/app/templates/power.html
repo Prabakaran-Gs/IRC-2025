@@ -7,7 +7,9 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
     // Initialize the map
-    var map = L.map('map').setView([12.9617382, 80.0575748], 13);  // Starting point
+    var lat = 12.961958999999998;
+    var long = 80.057472;
+    var map = L.map('map').setView([lat, long], 13);  // Starting point
 
     // Add a tile layer (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -15,18 +17,19 @@
     }).addTo(map);
 
     // Add a marker for the vehicle
-    var vehicleMarker = L.marker([12.9617382, 80.0575748]).addTo(map);
+    var vehicleMarker = L.marker([lat, long]).addTo(map);
 
     // Set a destination marker
-    var destination = [12.965, 80.062];  // Example coordinates for the destination
+    var destination = [lat + (-0.0002), long + 0.001];  // Example coordinates for the destination
     L.marker(destination).addTo(map).bindPopup('Destination').openPopup();
 
     // Initialize an array to store the path
-    var pathCoordinates = [[12.9617382, 80.0575748]];  // Start with the initial point
+    var pathCoordinates = [[lat, long]];  // Start with the initial point
     var val = 0;
     // Create a polyline to show the path
     var pathPolyline = L.polyline(pathCoordinates, { color: 'blue' }).addTo(map);
-
+    var start = 1;
+    var bias = 0;
     // Function to update the vehicle location
     function updateLocation() {
         if (navigator.geolocation) {
@@ -37,14 +40,18 @@
                     const longitude = position.coords.longitude;
 
                     // Update marker position
-                    vehicleMarker.setLatLng([latitude, longitude]);
-                    map.setView([latitude, longitude]);
+                    vehicleMarker.setLatLng([lat, long]);
+                    map.setView([lat, long]);
 
                     // Add the new position to the path and update the polyline
-                    pathCoordinates.push([latitude, longitude]);
+                    pathCoordinates.push([lat, long]);
                     pathPolyline.setLatLngs(pathCoordinates);
+                    console.log(lat, long);
 
-                    val += 0.0001;  // Simulated increment for testing purposes
+                    val += 0.000001;
+                    lat += -(0.000001) * (start);
+                    long += val;
+                    start += 0.1;
                 },
                 function(error) {
                     console.error('Error fetching location:', error.message);
@@ -56,6 +63,6 @@
     }
 
     // Update location every 2 seconds
-    setInterval(updateLocation, 2000);
+    setInterval(updateLocation, 1000);
 </script>
 {% endblock %}
