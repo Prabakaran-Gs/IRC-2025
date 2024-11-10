@@ -2,4 +2,8 @@
 .vscode
 .virtual
 .venv
+<<<<<<< HEAD
 UI/app/__pycache__
+=======
+__pycache__
+>>>>>>> d74a1c56b239604d9b23531eba6e903bb10612ac
