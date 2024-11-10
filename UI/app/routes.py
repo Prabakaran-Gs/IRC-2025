@@ -1,35 +1,28 @@
 from flask import Blueprint, render_template, Response
 import random
 import cv2
+from ros_cam_node import start_capturing
 
 main = Blueprint('main', __name__)
 
-# Initialize the camera
-camera1 = cv2.VideoCapture(0)
-camera2 = cv2.VideoCapture(1)
+camera = start_capturing()
 
-# Route to generate frames for video feed
+
 def generate_frames_camera1():
     while True:
-        success, frame = camera1.read()
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        frame = camera.left_img
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 def generate_frames_camera2():
     while True:
-        success, frame = camera2.read()
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        frame = camera.right_img
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @main.route('/')
 def index():
