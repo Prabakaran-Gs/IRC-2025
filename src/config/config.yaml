@@ -1,0 +1,9 @@
+#* Topic Names
+
+ARM_CONTROL: "joystick_arm_cmd"
+ROVER_CONTROL: "joystick_motion_cmd"
+
+
+#* Joystic Configuration
+
+BUTTONS_FOR_ARM: 8

@@ -104,7 +104,7 @@ class Joystick():
             self._update_speed()
             self._update_axis()
             self.cmd = self._encoded_direction()
-            time.sleep(0.5)
+            time.sleep(0.1)
 
     def _encoded_direction(self):
         l_speed = self.speed
