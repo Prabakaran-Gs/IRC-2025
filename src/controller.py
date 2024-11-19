@@ -36,7 +36,6 @@ class Controller(Node):
     def get_arm(self):
         buttons = Float32MultiArray()
         buttons.data = self.controller.axes_data+self.controller.buttons_data[:NO_OF_BUTTONS_TO_SHARE]
-        print(buttons)
         return buttons
 
     def get_motion(self):

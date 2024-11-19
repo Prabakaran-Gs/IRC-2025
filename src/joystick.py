@@ -98,7 +98,7 @@ class Joystick():
             # hat values
             hat_value = self.controller.get_hat(0)
             # print(hat_value)
-            self.direction = direction_mapper[hat_value]
+            self.direction = direction_mapper.get(hat_value,'S')
 
             self._update_button()
             self._update_speed()
@@ -120,7 +120,7 @@ class Joystick():
             l_speed = 0
             r_speed = 0
 
-        return f"l{l_speed},r{r_speed}"
+        return f"l{l_speed*30},r{r_speed*30}"
 
 
 
